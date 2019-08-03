@@ -46,10 +46,43 @@
 /*
  * Lab 3: Your code here for generating entry points for the different traps.
  */
+	TRAPHANDLER_NOEC(divide_entry, T_DIVIDE);
+	TRAPHANDLER_NOEC(debug_entry, T_DEBUG);
+	TRAPHANDLER_NOEC(nmi_entry, T_NMI);
+	TRAPHANDLER_NOEC(brkpt_entry, T_BRKPT);
+	TRAPHANDLER_NOEC(oflow_entry, T_OFLOW);
+	TRAPHANDLER_NOEC(bound_entry, T_BOUND);
+	TRAPHANDLER_NOEC(illop_entry, T_ILLOP);
+	TRAPHANDLER_NOEC(device_entry, T_DEVICE);
+	TRAPHANDLER(dblflt_entry, T_DBLFLT);
 
+	TRAPHANDLER(tss_entry, T_TSS);
+	TRAPHANDLER(segnp_entry, T_SEGNP);
+	TRAPHANDLER(stack_entry, T_STACK);
+	TRAPHANDLER(gpflt_entry, T_GPFLT);
+	TRAPHANDLER(pgflt_entry, T_PGFLT);
+	TRAPHANDLER_NOEC(fperr_entry, T_FPERR);
 
+	TRAPHANDLER_NOEC(syscall_entry, T_SYSCALL);
 
 /*
  * Lab 3: Your code here for _alltraps
  */
+
+_alltraps:
+	// 根据 ~Trapframe~ 进行压栈
+	pushl %ds
+	pushl %es
+	pushal
+
+	// 把 ~GD_KD~ 加载到 ~%ds~ 和 ~%es~
+	mov $GD_KD, %ax
+	mov %ax, %dx
+	mov %ax, %es
+
+	// 将指向 ~Trapframe~ 的指针作为 ~trap()~ 参数
+	pushl %esp
+
+	// 调用 ~trap()~
+	call trap
 
