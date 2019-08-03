@@ -191,9 +191,17 @@ trap_dispatch(struct Trapframe *tf)
 		return ;
 	}
 
-	// Unexpected trap: The user process or the kernel has a bug.
-	print_trapframe(tf);
-	if (tf->tf_cs == GD_KT)
+	// System calls
+	if (tf->tf_trapno == T_SYSCALL) {
+		struct PushRegs *regs = &(tf->tf_regs);
+		regs->reg_eax = syscall(regs->reg_eax, regs->reg_edx, regs->reg_ecx,
+					regs->reg_ebx, regs->reg_edi, regs->reg_esi);
+		return ;
+	}
+
+        // Unexpected trap: The user process or the kernel has a bug.
+        print_trapframe(tf);
+        if (tf->tf_cs == GD_KT)
 		panic("unhandled trap in kernel");
 	else {
 		env_destroy(curenv);
