@@ -185,6 +185,12 @@ trap_dispatch(struct Trapframe *tf)
 		return ;
 	}
 
+	// The Breakpoint Exception
+	if (tf->tf_trapno == T_BRKPT) {
+		monitor(tf);
+		return ;
+	}
+
 	// Unexpected trap: The user process or the kernel has a bug.
 	print_trapframe(tf);
 	if (tf->tf_cs == GD_KT)
