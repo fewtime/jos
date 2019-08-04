@@ -256,9 +256,14 @@ page_fault_handler(struct Trapframe *tf)
 	// Read processor's CR2 register to find the faulting address
 	fault_va = rcr2();
 
-	// Handle kernel-mode page faults.
+        // Handle kernel-mode page faults.
+        // Hint: to determine whether a fault happened in user mode or in kernel
+        // mode, check the low bits of the tf_cs.
 
-	// LAB 3: Your code here.
+        // LAB 3: Your code here.
+	if ((tf->tf_cs & 3) == 0) {
+		panic("page_fault_handler: page fault in kernel-mode %08x.\n", fault_va);
+	}
 
 	// We've already handled kernel-mode exceptions, so if we get here,
 	// the page fault happened in user mode.
