@@ -325,6 +325,10 @@ page_init(void)
 	page_free_list = NULL;
 
 	for (i = 1; i < npages_basemem; ++i) {
+		// 当前页地址与 MPENTRY_PADDR 地址一致
+		if (page2pa(&pages[i]) == MPENTRY_PADDR) {
+			continue;
+		}
 		pages[i].pp_ref = 0;
 		pages[i].pp_link = page_free_list;
 		page_free_list = &pages[i];
