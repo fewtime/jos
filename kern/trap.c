@@ -366,9 +366,8 @@ page_fault_handler(struct Trapframe *tf)
 	//   (the 'tf' variable points at 'curenv->env_tf').
 
 	// LAB 4: Your code here.
-	// check env_pgfault_upcall and exception stack
-	if (curenv->env_pgfault_upcall && (UXSTACKTOP - PGSIZE < fault_va) &&
-	    (fault_va <= UXSTACKTOP)) {
+	// check env_pgfault_upcall
+	if (curenv->env_pgfault_upcall) {
 		uintptr_t uesp;
 
 		// fault happens on user exception stack
