@@ -533,7 +533,7 @@ page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)
 	physaddr_t pa = page2pa(pp);
 
 	*pte = pa | perm | PTE_P;
-	/* pgdir[PDX(va)] |= perm; */
+	pgdir[PDX(va)] |= perm;
 
         return 0;
 }
