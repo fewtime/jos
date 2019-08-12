@@ -623,8 +623,8 @@ mmio_map_region(physaddr_t pa, size_t size)
 	// (just like nextfree in boot_alloc).
 	static uintptr_t base = MMIOBASE;
 
-	if (base + size > MMIOBASE) {
-		panic("mmio_map_region not implemented");
+	if (base + size > MMIOLIM) {
+		panic("mmio_map_region: mmio memory space is NOT enough.");
 	}
 
 	// Reserve size bytes of virtual memory starting at base and
@@ -646,7 +646,7 @@ mmio_map_region(physaddr_t pa, size_t size)
 	//
 	// Your code here:
 
-	size = ROUNDUP((uint32_t)(pa + size), PGSIZE);
+	size = ROUNDUP((uint32_t)size, PGSIZE);
 	pa = ROUNDDOWN((uint32_t)pa, PGSIZE);
 
 	boot_map_region(kern_pgdir, base, size, pa, PTE_PCD|PTE_PWT|PTE_W);
