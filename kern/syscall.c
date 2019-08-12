@@ -118,8 +118,8 @@ sys_env_set_status(envid_t envid, int status)
 	// envid's status.
 
         // LAB 4: Your code here.
-	if ((status != ENV_RUNNABLE) ||
-	    (status != ENV_NOT_RUNNABLE)) {
+	if (!((status == ENV_RUNNABLE) ||
+	      (status == ENV_NOT_RUNNABLE))) {
 		return -E_INVAL;
 	}
 
@@ -192,6 +192,11 @@ sys_page_alloc(envid_t envid, void *va, int perm)
 
 	if (perm & ~(PTE_U | PTE_P | PTE_AVAIL | PTE_W)) {
 		return -E_INVAL;
+	}
+
+	pg = page_alloc(ALLOC_ZERO);
+	if (!pg) {
+		return -E_NO_MEM;
 	}
 
 	if ((ret = page_insert(e->env_pgdir, pg, (void *)va, perm)) < 0) {
