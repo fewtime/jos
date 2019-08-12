@@ -367,42 +367,10 @@ page_fault_handler(struct Trapframe *tf)
 
 	// LAB 4: Your code here.
 
-	// check env_pgfault_upcall and exception stack
-	if (curenv->env_pgfault_upcall && (UXSTACKTOP - PGSIZE < fault_va) &&
-	    (fault_va <= UXSTACKTOP)) {
-
-		uintptr_t uesp;
-
-		// fault happens on user exception stack
-		if ((tf->tf_esp < UXSTACKTOP) &&
-		    (tf->tf_esp >= UXSTACKTOP - PGSIZE)) {
-			uesp = tf->tf_esp - sizeof(struct UTrapframe) - 4;
-		} else {
-			uesp = UXSTACKTOP - sizeof(struct UTrapframe);
-		}
-
-		user_mem_assert(curenv, (void *)uesp, sizeof(struct UTrapframe),
-				PTE_U | PTE_P | PTE_W);
-
-		struct UTrapframe *utf = (struct UTrapframe *)uesp;
-
-		utf->utf_fault_va = fault_va;
-		utf->utf_err = tf->tf_err;
-		utf->utf_regs = tf->tf_regs;
-		utf->utf_eip = tf->tf_eip;
-		utf->utf_eflags = tf->tf_eflags;
-		utf->utf_esp = tf->tf_esp;
-
-		tf->tf_esp = uesp;
-		tf->tf_eip = (uint32_t)curenv->env_pgfault_upcall;
-
-		// re-entry user mode
-		env_run(curenv);
-	}
-
 	// Destroy the environment that caused the fault.
-	cprintf("[%08x] user fault va %08x ip %08x\n", curenv->env_id, fault_va,
-		tf->tf_eip);
+	cprintf("[%08x] user fault va %08x ip %08x\n",
+		curenv->env_id, fault_va, tf->tf_eip);
 	print_trapframe(tf);
 	env_destroy(curenv);
 }
+
