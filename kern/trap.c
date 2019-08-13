@@ -125,7 +125,7 @@ trap_init(void)
         void irq_handler14();
         void irq_handler15();
 
-	SETGATE(idt[IRQ_OFFSET + 0], 0, GD_KT, irq_handler0, 3);
+	SETGATE(idt[IRQ_OFFSET], 0, GD_KT, irq_handler0, 3);
         SETGATE(idt[IRQ_OFFSET + 1], 0, GD_KT, irq_handler1, 3);
         SETGATE(idt[IRQ_OFFSET + 2], 0, GD_KT, irq_handler2, 3);
         SETGATE(idt[IRQ_OFFSET + 3], 0, GD_KT, irq_handler3, 3);
