@@ -107,6 +107,41 @@ trap_init(void)
         SETGATE(idt[T_FPERR], 1, GD_KT, fperr_entry, 0);
         SETGATE(idt[T_SYSCALL], 1, GD_KT, syscall_entry, 3);
 
+	// irq
+	void irq_handler0();
+        void irq_handler1();
+        void irq_handler2();
+        void irq_handler3();
+        void irq_handler4();
+        void irq_handler5();
+        void irq_handler6();
+        void irq_handler7();
+        void irq_handler8();
+        void irq_handler9();
+        void irq_handler10();
+        void irq_handler11();
+        void irq_handler12();
+        void irq_handler13();
+        void irq_handler14();
+        void irq_handler15();
+
+	SETGATE(idt[IRQ_OFFSET + 0], 0, GD_KT, irq_handler0, 3);
+        SETGATE(idt[IRQ_OFFSET + 1], 0, GD_KT, irq_handler1, 3);
+        SETGATE(idt[IRQ_OFFSET + 2], 0, GD_KT, irq_handler2, 3);
+        SETGATE(idt[IRQ_OFFSET + 3], 0, GD_KT, irq_handler3, 3);
+        SETGATE(idt[IRQ_OFFSET + 4], 0, GD_KT, irq_handler4, 3);
+        SETGATE(idt[IRQ_OFFSET + 5], 0, GD_KT, irq_handler5, 3);
+        SETGATE(idt[IRQ_OFFSET + 6], 0, GD_KT, irq_handler6, 3);
+        SETGATE(idt[IRQ_OFFSET + 7], 0, GD_KT, irq_handler7, 3);
+        SETGATE(idt[IRQ_OFFSET + 8], 0, GD_KT, irq_handler8, 3);
+        SETGATE(idt[IRQ_OFFSET + 9], 0, GD_KT, irq_handler9, 3);
+        SETGATE(idt[IRQ_OFFSET + 10], 0, GD_KT, irq_handler10, 3);
+        SETGATE(idt[IRQ_OFFSET + 11], 0, GD_KT, irq_handler11, 3);
+        SETGATE(idt[IRQ_OFFSET + 12], 0, GD_KT, irq_handler12, 3);
+        SETGATE(idt[IRQ_OFFSET + 13], 0, GD_KT, irq_handler13, 3);
+        SETGATE(idt[IRQ_OFFSET + 14], 0, GD_KT, irq_handler14, 3);
+        SETGATE(idt[IRQ_OFFSET + 15], 0, GD_KT, irq_handler15, 3);
+
         // Per-CPU setup
         trap_init_percpu();
 }
