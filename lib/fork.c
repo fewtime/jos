@@ -80,6 +80,15 @@ duppage(envid_t envid, unsigned pn)
 	// LAB 4: Your code here.
 	uintptr_t va = pn * PGSIZE;
 
+	if (uvpt[pn] & PTE_SHARE) {
+		if ((r = sys_page_map(thisenv->env_id, (void *)va,
+				      envid, (void *)va,
+				      uvpt[pn] & PTE_SYSCALL)) < 0) {
+			panic("duppage(): PTE_SHARE copy error: %e.\n", r);
+		}
+		return 0;
+	}
+
 	// 可写或写时拷贝页
         if ((uvpt[pn] & PTE_W) || (uvpt[pn] & PTE_COW)) {
 		if ((r = sys_page_map(thisenv->env_id, (void *)va,
