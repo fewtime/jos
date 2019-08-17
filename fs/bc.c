@@ -49,12 +49,24 @@ bc_pgfault(struct UTrapframe *utf)
 	//
 	// LAB 5: you code here:
 
-	// Clear the dirty bit for the disk block page since we just read the
-	// block from disk
-	if ((r = sys_page_map(0, addr, 0, addr, uvpt[PGNUM(addr)] & PTE_SYSCALL)) < 0)
+	// addr my not be aligned to a block boundary
+	addr = ROUNDDOWN(addr, PGSIZE);
+
+	if ((r = sys_page_alloc(0, addr, PTE_U | PTE_W | PTE_P)) < 0) {
+		panic("in bc_pgfault, sys_page_alloc: %e", r);
+	}
+
+	if ((r = ide_read(blockno * BLKSECTS, addr, BLKSECTS)) < 0) {
+		panic("in bc_pgfault, ide_write: %e", r);
+	}
+
+	// Clear the dirty bit for the disk block page since we just read
+	// the block from disk
+	if ((r = sys_page_map(0, addr, 0, addr,
+			      uvpt[PGNUM(addr)] & PTE_SYSCALL)) < 0)
 		panic("in bc_pgfault, sys_page_map: %e", r);
 
-	// Check that the block we read was allocated. (exercise for
+        // Check that the block we read was allocated. (exercise for
 	// the reader: why do we do this *after* reading the block
 	// in?)
 	if (bitmap && block_is_free(blockno))
@@ -72,12 +84,30 @@ void
 flush_block(void *addr)
 {
 	uint32_t blockno = ((uint32_t)addr - DISKMAP) / BLKSIZE;
+	int r = 0;
 
 	if (addr < (void*)DISKMAP || addr >= (void*)(DISKMAP + DISKSIZE))
 		panic("flush_block of bad va %08x", addr);
 
-	// LAB 5: Your code here.
-	panic("flush_block not implemented");
+        // LAB 5: Your code here.
+	// round addr down
+	addr = ROUNDDOWN(addr, PGSIZE);
+        // do nothing if the block isn't even in the block cache (that is, the
+        // page isn't mapped) or if it's not dirty.
+        if (!va_is_mapped(addr) || !va_is_dirty(addr)) {
+		return ;
+	}
+
+	if ((r = ide_write(blockno * BLKSECTS, addr, BLKSECTS)) < 0) {
+		panic("in flush_block, ide_write: %e", r);
+	}
+
+        // clear the PTE_D bit using sys_page_map.
+	if ((r = sys_page_map(0, addr,
+			      0, addr,
+			      uvpt[PGNUM(addr)] & PTE_SYSCALL)) < 0) {
+		panic("in flush_block, sys_page_map: %e", r);
+	}
 }
 
 // Test that the block cache works, by smashing the superblock and
