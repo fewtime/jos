@@ -313,8 +313,8 @@ copy_shared_pages(envid_t child)
 					      child, (void *)va,
 					      uvpt[PGNUM(va)] & PTE_SYSCALL)) < 0) {
 				panic("copy_shared_pages: sys_page_map: %e", r);
-			}
-			return r;
+                                return r;
+                        }
 		}
 	}
 	return 0;
