@@ -33,6 +33,8 @@
 
 /* Transmit Descriptor bit definitions */
 #define E1000_TXD_STAT_DD 0x00000001 /* Descriptor Done */
+#define E1000_TXD_CMD_EOP 0x0000001 /* End of Packet */
+#define E1000_TXD_CMD_RS 0x08000000  /* Report Status */
 
 #define TXRING_LEN 32
 #define TX_PACKAGE_SIZE 1518
@@ -49,9 +51,11 @@ struct e1000_tx_desc {
   uint16_t special;
 } __attribute__((packed));
 
+
 int e1000_attachfn(struct pci_func *pcif);
 static void init_desc(void);
 int e1000_transmit_init(void);
+int e1000_transmit(void *data, size_t len);
 
 volatile uint32_t *mmio_e1000;
 
