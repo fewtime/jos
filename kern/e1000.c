@@ -4,12 +4,10 @@
 // LAB 6: Your driver code here
 
 struct e1000_tx_desc tx_desc_arr[TXRING_LEN];
-char tx_buffer_arr[TXRING_LEN][TX_PACKAGE_SIZE];
+char tx_buffer_arr[TXRING_LEN][TX_PACKET_SIZE];
 
-struct e1000_rx_desc rx_descs[RXRING_LEN]
-    __attribute__((aligned(PGSIZE))) = {0};
-char rx_buffers[RXRING_LEN][RX_PACKAGE_SIZE]
-    __attribute__((aligned(PGSIZE))) = {0};
+struct e1000_rx_desc rx_desc_arr[RXRING_LEN];
+char rx_buffer_arr[RXRING_LEN][RX_PACKET_SIZE];
 
 int e1000_attachfn(struct pci_func *pcif) {
   pci_func_enable(pcif);
@@ -34,10 +32,10 @@ static void init_desc(void) {
   }
 
   for (i = 0; i < RXRING_LEN; ++i) {
-    memset(&rx_descs[i], 0, sizeof(struct e1000_rx_desc));
-    memset(&rx_buffers[i], 0, RX_PACKAGE_SIZE);
-    rx_descs[i].addr = PADDR(&rx_buffers[i]);
-    rx_descs[i].status = E1000_RXD_STAT_DD | E1000_RXD_STAT_EOP;
+    memset(&rx_desc_arr[i], 0, sizeof(struct e1000_rx_desc));
+    memset(&rx_buffer_arr[i], 0, RX_PACKET_SIZE);
+    rx_desc_arr[i].addr = PADDR(&rx_buffer_arr[i]);
+    rx_desc_arr[i].status = E1000_RXD_STAT_DD | E1000_RXD_STAT_EOP;
   }
 }
 
@@ -65,7 +63,7 @@ int e1000_transmit(void *data, size_t len) {
     return -E_TRANSMIT_RETRY;
   }
 
-  len = len > TX_PACKAGE_SIZE ? TX_PACKAGE_SIZE : len;
+  len = len > TX_PACKET_SIZE ? TX_PACKET_SIZE : len;
 
   memcpy(&tx_buffer_arr[current], data, len);
   tx_desc_arr[current].length = len;
@@ -81,7 +79,7 @@ int e1000_receive_init(void) {
   /* QEMU默认MAC: 52 : 54 : 00 : 12 : 34 : 56 */
   mmio_e1000[E1000_RAL] = 0x12005452;
   mmio_e1000[E1000_RAH] = 0x00005634 | E1000_RAH_AV;
-  mmio_e1000[E1000_RDBAL] = PADDR(rx_descs);
+  mmio_e1000[E1000_RDBAL] = PADDR(rx_desc_arr);
   mmio_e1000[E1000_RDBAH] = 0;
   mmio_e1000[E1000_RDLEN] = VALUEMASK(RXRING_LEN, E1000_RDLEN_LEN);
   mmio_e1000[E1000_RDH] = 0;

@@ -61,9 +61,9 @@
 #define E1000_RCTL_SECRC 0x04000000 /* Strip Ethernet CRC */
 
 #define TXRING_LEN 32
-#define TX_PACKAGE_SIZE 1518
+#define TX_PACKET_SIZE 1518
 #define RXRING_LEN 128
-#define RX_PACKAGE_SIZE 1518
+#define RX_PACKET_SIZE 1518
 
 #define E_TRANSMIT_RETRY 1
 

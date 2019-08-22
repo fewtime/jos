@@ -20,7 +20,7 @@ output(envid_t ns_envid)
 		}
 
 
-		while (sys_package_send((void *)nsipcbuf.pkt.jp_data, (size_t)nsipcbuf.pkt.jp_len) < 0) {
+		while (sys_packet_send((void *)nsipcbuf.pkt.jp_data, (size_t)nsipcbuf.pkt.jp_len) < 0) {
 			sys_yield();
 		}
 	}
