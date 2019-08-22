@@ -8,6 +8,11 @@ struct e1000_tx_desc tx_descs[TXRING_LEN]
 char tx_buffers[TXRING_LEN][TX_PACKAGE_SIZE]
     __attribute__((aligned(PGSIZE))) = {0};
 
+struct e1000_rx_desc rx_descs[RXRING_LEN]
+    __attribute__((aligned(PGSIZE))) = {0};
+char rx_buffers[RXRING_LEN][RX_PACKAGE_SIZE]
+    __attribute__((aligned(PGSIZE))) = {0};
+
 int e1000_attachfn(struct pci_func *pcif) {
   pci_func_enable(pcif);
   cprintf("reg_base: %x, reg_size: %x\n", pcif->reg_base[0], pcif->reg_size[0]);
@@ -16,7 +21,9 @@ int e1000_attachfn(struct pci_func *pcif) {
   mmio_e1000 =
       mmio_map_region((physaddr_t)pcif->reg_base[0], (size_t)pcif->reg_size[0]);
 
+  init_desc();
   e1000_transmit_init();
+  e1000_receive_init();
 
   return 0;
 }
@@ -29,11 +36,17 @@ static void init_desc(void) {
     tx_descs[i].addr = PADDR(&tx_buffers[i]);
     tx_descs[i].status = E1000_TXD_STAT_DD;
   }
+
+  for (i = 0; i < RXRING_LEN; ++i) {
+    memset(&rx_descs[i], 0, sizeof(struct e1000_rx_desc));
+    memset(&rx_buffers[i], 0, RX_PACKAGE_SIZE);
+    rx_descs[i].addr = PADDR(&rx_buffers[i]);
+    rx_descs[i].status = E1000_RXD_STAT_DD | E1000_RXD_STAT_EOP;
+  }
 }
 
 int e1000_transmit_init(void) {
   assert(mmio_e1000[E1000_STATUS] == 0x80080783);
-  init_desc();
   mmio_e1000[E1000_TDBAL] = PADDR(tx_descs);
   mmio_e1000[E1000_TDBAH] = 0;
   mmio_e1000[E1000_TDLEN] = VALUEMASK(TXRING_LEN, E1000_TDLEN_LEN);
@@ -52,7 +65,7 @@ int e1000_transmit(void *data, size_t len) {
   uint32_t current = mmio_e1000[E1000_TDT];
 
   if ((tx_descs[current].status & E1000_TXD_STAT_DD) != E1000_TXD_STAT_DD) {
-    return -1;
+    return -E_TRANSMIT_RETRY;
   }
 
   len = len > TX_PACKAGE_SIZE ? TX_PACKAGE_SIZE : len;
@@ -63,6 +76,20 @@ int e1000_transmit(void *data, size_t len) {
   tx_descs[current].cmd |= (E1000_TXD_CMD_EOP | E1000_TXD_CMD_RS);
 
   mmio_e1000[E1000_TDT] = (current + 1) % TXRING_LEN;
+
+  return 0;
+}
+
+int e1000_receive_init(void) {
+  /* QEMU默认MAC: 52 : 54 : 00 : 12 : 34 : 56 */
+  mmio_e1000[E1000_RAL] = 0x12005452;
+  mmio_e1000[E1000_RAH] = 0x00005634 | E1000_RAH_AV;
+  mmio_e1000[E1000_RDBAL] = PADDR(rx_descs);
+  mmio_e1000[E1000_RDBAH] = 0;
+  mmio_e1000[E1000_RDLEN] = VALUEMASK(RXRING_LEN, E1000_RDLEN_LEN);
+  mmio_e1000[E1000_RDH] = 0;
+  mmio_e1000[E1000_RDT] = RXRING_LEN;
+  mmio_e1000[E1000_RCTL] = E1000_RCTL_EN | E1000_RCTL_BAM | E1000_RCTL_SECRC;
 
   return 0;
 }
