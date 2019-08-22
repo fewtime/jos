@@ -34,7 +34,7 @@
 /* Transmit Descriptor bit definitions */
 #define E1000_TXD_STAT_DD 0x00000001 /* Descriptor Done */
 #define E1000_TXD_CMD_EOP 0x0000001 /* End of Packet */
-#define E1000_TXD_CMD_RS 0x08000000  /* Report Status */
+#define E1000_TXD_CMD_RS 0x00000008  /* Report Status */
 
 #define TXRING_LEN 32
 #define TX_PACKAGE_SIZE 1518
