@@ -124,5 +124,5 @@ sys_time_msec(void)
 }
 
 int sys_package_send(void *data, size_t len) {
-	return syscall(SYS_package_send, (uint32_t)data, len, 0, 0, 0);
+	return syscall(SYS_package_send, 1, (uint32_t)data, len, 0, 0, 0);
 }
