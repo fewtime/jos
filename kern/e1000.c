@@ -32,8 +32,6 @@ static void init_desc(void) {
   }
 
   for (i = 0; i < RXRING_LEN; ++i) {
-    memset(&rx_desc_arr[i], 0, sizeof(struct e1000_rx_desc));
-    memset(&rx_buffer_arr[i], 0, RX_PACKET_SIZE);
     rx_desc_arr[i].addr = PADDR(&rx_buffer_arr[i]);
     rx_desc_arr[i].status = E1000_RXD_STAT_DD | E1000_RXD_STAT_EOP;
   }
@@ -83,7 +81,7 @@ int e1000_receive_init(void) {
   mmio_e1000[E1000_RDBAH] = 0;
   mmio_e1000[E1000_RDLEN] = VALUEMASK(RXRING_LEN, E1000_RDLEN_LEN);
   mmio_e1000[E1000_RDH] = 0;
-  mmio_e1000[E1000_RDT] = RXRING_LEN;
+  mmio_e1000[E1000_RDT] = RXRING_LEN - 1;
   mmio_e1000[E1000_RCTL] = E1000_RCTL_EN | E1000_RCTL_BAM | E1000_RCTL_SECRC;
 
   return 0;
