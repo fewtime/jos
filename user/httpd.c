@@ -77,7 +77,24 @@ static int
 send_data(struct http_request *req, int fd)
 {
 	// LAB 6: Your code here.
-	panic("send_data not implemented");
+	struct Stat stat;
+	if (fstat(fd, &stat) < 0) {
+		return -1;
+	}
+
+	// read from file
+	void *buf = malloc(stat.st_size);
+	if (readn(fd, buf, stat.st_size) != stat.st_size) {
+		panic("send_data(): readn(): Read requested file ERROR.");
+	}
+
+	// write to socket
+	if (write(req->sock, buf, stat.st_size) != stat.st_size) {
+		panic("send_data(): write(): Send bytes to client ERROR.");
+	}
+
+	free(buf);
+	return 0;
 }
 
 static int
@@ -216,16 +233,36 @@ send_file(struct http_request *req)
 	int r;
 	off_t file_size = -1;
 	int fd;
+        struct Stat stat;
 
-	// open the requested url for reading
+        // open the requested url for reading
 	// if the file does not exist, send a 404 error using send_error
 	// if the file is a directory, send a 404 error using send_error
 	// set file_size to the size of the file
 
-	// LAB 6: Your code here.
-	panic("send_file not implemented");
+        // LAB 6: Your code here.
+        // if the file does not exist, send a 404 error using send_error
+        if ((fd = open(req->url, O_RDONLY)) < 0) {
+		send_error(req, 404);
+		r = fd;
+		goto end;
+	}
 
-	if ((r = send_header(req, 200)) < 0)
+	if ((r = fstat(fd, &stat)) < 0) {
+		goto end;
+	}
+
+        // if the file is a directory, send a 404 error using send_error
+	if (stat.st_isdir) {
+		send_error(req, 404);
+		r = -1;
+		goto end;
+	}
+
+        // set file_size to the size of the file
+	file_size = stat.st_size;
+
+        if ((r = send_header(req, 200)) < 0)
 		goto end;
 
 	if ((r = send_size(req, file_size)) < 0)
