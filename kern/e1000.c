@@ -86,3 +86,23 @@ int e1000_receive_init(void) {
 
   return 0;
 }
+
+int e1000_receive(void *addr, size_t *len) {
+  static int32_t current = 0;
+
+  if ((rx_desc_arr[current].status & E1000_RXD_STAT_DD) != E1000_RXD_STAT_DD) {
+    return -E_RECEIVE_RETRY;
+  }
+
+  if (rx_desc_arr[current].errors) {
+    return -E_RECEIVE_RETRY;
+  }
+
+  *len = rx_desc_arr[current].length;
+  memcpy(addr, &rx_buffer_arr[current], *len);
+
+  mmio_e1000[E1000_RDT] = (mmio_e1000[E1000_RDT] + 1) % RXRING_LEN;
+  current = (current + 1) % RXRING_LEN;
+
+  return 0;
+}

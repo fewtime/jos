@@ -472,6 +472,12 @@ sys_packet_send(void *data, size_t len)
 	return e1000_transmit(data, len);
 }
 
+static int
+sys_packet_recv(void *data, size_t *len)
+{
+	return e1000_receive(data, len);
+}
+
 // Dispatches to the correct kernel function, passing the arguments.
 int32_t
 syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5)
@@ -532,6 +538,9 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
 		break;
 	case SYS_packet_send:
 		ret = sys_packet_send((void *)a1, (size_t)a2);
+		break;
+        case SYS_packet_recv:
+		ret = sys_packet_recv((void *)a1, (size_t *)a2);
 		break;
 	case NSYSCALLS:
 		break;

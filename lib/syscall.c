@@ -128,4 +128,9 @@ sys_packet_send(void *data, size_t len)
 {
 	return syscall(SYS_packet_send, 1, (uint32_t)data, len, 0, 0, 0);
 }
+
+int
+sys_packet_recv(void *data, size_t *len)
+{
+	return syscall(SYS_packet_recv, 1, (uint32_t)data, (uint32_t)len, 0, 0, 0);
 }

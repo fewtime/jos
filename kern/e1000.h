@@ -65,9 +65,12 @@
 #define RXRING_LEN 128
 #define RX_PACKET_SIZE 1518
 
-#define E_TRANSMIT_RETRY 1
-
 #define VALUEMASK(value, mask) (value) * ((mask) & ~((mask) << 1))
+
+enum {
+  E_TRANSMIT_RETRY = 1,
+  E_RECEIVE_RETRY
+};
 
 struct e1000_tx_desc {
   uint64_t addr;
@@ -93,6 +96,7 @@ static void init_desc(void);
 int e1000_transmit_init(void);
 int e1000_transmit(void *data, size_t len);
 int e1000_receive_init(void);
+int e1000_receive(void *addr, size_t *len);
 
 volatile uint32_t *mmio_e1000;
 
