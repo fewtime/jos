@@ -33,7 +33,7 @@ static void init_desc(void) {
 
   for (i = 0; i < RXRING_LEN; ++i) {
     rx_desc_arr[i].addr = PADDR(&rx_buffer_arr[i]);
-    rx_desc_arr[i].status = E1000_RXD_STAT_DD | E1000_RXD_STAT_EOP;
+    /* rx_desc_arr[i].status = E1000_RXD_STAT_DD | E1000_RXD_STAT_EOP; */
   }
 }
 
