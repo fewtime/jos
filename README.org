@@ -1,0 +1,22 @@
+* MIT 6.828 2018
+
+[[https://pdos.csail.mit.edu/6.828][课程链接]]
+
+代码库只包含实验部分代码，作业代码比较简短而且分散，所以没上传直接放博客了。
+
+课程视频可以参考 [[https://www.cs.hmc.edu/~rhodes/courses/cs134/sp19/schedule.html][HMC CS134]] ，课程结构跟 MIT 的一致
+
+实验跟作业记录: [[https://cowlog.com/categories/6-828/]]
+
+可以通过 ~Dockerfile~ 直接构建 Docker 镜像并通过 ~jos~ 帮助脚本管理容器
+
+#+begin_src sh
+  # 创建镜像
+  sudo docker build -t cowlog/jos --rm=true .
+
+  # 连接到容器
+  sudo jos
+
+  # 关闭容器
+  sudo jos -p
+#+end_src
